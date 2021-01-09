@@ -302,7 +302,7 @@ class ProcessSupervisor
      *
      * @throws \Symfony\Component\Process\Exception\ProcessFailedException
      */
-    protected function checkProcessStatus(): void
+    protected function checkProcessStatus(?\Throwable $previousException = null): void
     {
         $this->logProcessStandardStreams();
 
@@ -312,10 +312,10 @@ class ProcessSupervisor
             if (IdleTimeoutException::exceptionApplies($process)) {
                 throw new IdleTimeoutException(
                     $this->options['idle_timeout'],
-                    new NodeFatalException($process, $this->options['debug'])
+                    new NodeFatalException($process, $this->options['debug'], $previousException)
                 );
             } elseif (NodeFatalException::exceptionApplies($process)) {
-                throw new NodeFatalException($process, $this->options['debug']);
+                throw new NodeFatalException($process, $this->options['debug'], $previousException);
             } elseif ($process->isTerminated() && !$process->isSuccessful()) {
                 throw new ProcessFailedException($process);
             }
